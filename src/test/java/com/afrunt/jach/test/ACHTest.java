@@ -21,8 +21,8 @@ package com.afrunt.jach.test;
 import com.afrunt.jach.ACH;
 import com.afrunt.jach.document.ACHDocument;
 import com.afrunt.jach.domain.GeneralBatchHeader;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -63,12 +63,12 @@ public class ACHTest {
         ACHDocument document = ach.read(getClass().getClassLoader().getResourceAsStream("ach-payrol.txt"));
         String out = ach.write(document);
         String[] strings = out.split(ACH.LINE_SEPARATOR);
-        Assert.assertEquals(10, strings.length);
+        Assertions.assertEquals(10, strings.length);
 
         document = ach.read(getClass().getClassLoader().getResourceAsStream("ach-pos.txt"));
         out = ach.write(document);
         strings = out.split(ACH.LINE_SEPARATOR);
-        Assert.assertEquals(10, strings.length);
+        Assertions.assertEquals(10, strings.length);
     }
 
     @Test
@@ -92,7 +92,7 @@ public class ACHTest {
                 continue;
             }
             String line2 = sc2.nextLine();
-            Assert.assertEquals(line1, line2);
+            Assertions.assertEquals(line1, line2);
         }
     }
 

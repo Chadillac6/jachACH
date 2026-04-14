@@ -4,7 +4,7 @@ import com.afrunt.beanmetadata.Typed;
 import com.afrunt.jach.ACH;
 import com.afrunt.jach.metadata.ACHBeanMetadata;
 import com.afrunt.jach.metadata.ACHMetadata;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
