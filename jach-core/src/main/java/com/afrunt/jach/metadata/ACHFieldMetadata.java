@@ -24,6 +24,7 @@ import com.afrunt.jach.logic.StringUtil;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -182,8 +183,13 @@ public class ACHFieldMetadata extends FieldMetadata implements Comparable<ACHFie
             }
         } else if (isDate()) {
             try {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(getDateFormat());
-                LocalDate.parse(value, formatter);
+                String pattern = getDateFormat();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+                if (!pattern.contains("yy")) {
+                    MonthDay.parse(value, formatter);
+                } else {
+                    LocalDate.parse(value, formatter);
+                }
                 return true;
             } catch (Exception e) {
                 return false;
