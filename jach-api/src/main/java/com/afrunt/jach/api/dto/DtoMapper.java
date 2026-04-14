@@ -176,7 +176,7 @@ public class DtoMapper {
         for (Method method : entry.getClass().getMethods()) {
             String name = method.getName();
             if (name.startsWith("get") && method.getParameterCount() == 0
-                    && !name.equals("getClass") && !name.equals("getRecord")
+                    && !name.equals("getClass") && !name.equals("getRecord") && !name.equals("getLineNumber")
                     && !map.containsKey(toCamelCase(name))) {
                 try {
                     Object value = method.invoke(entry);
