@@ -50,7 +50,7 @@ class ACHControllerTest {
         String achString = new String(achContent);
 
         MvcResult result = mockMvc.perform(post("/ach/generate")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.TEXT_PLAIN)
                         .content(achString))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
@@ -112,7 +112,7 @@ class ACHControllerTest {
         // Step 2: Generate the file back from original content (since generate takes ACH text)
         String originalContent = new String(achContent);
         MvcResult generateResult = mockMvc.perform(post("/ach/generate")
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.TEXT_PLAIN)
                         .content(originalContent))
                 .andExpect(status().isOk())
                 .andReturn();

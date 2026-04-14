@@ -45,14 +45,14 @@ public class ACHController {
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping(value = "/generate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
-    @Operation(summary = "Generate an ACH file", description = "Accepts a JSON ACH document and generates a NACHA flat file")
+    @PostMapping(value = "/generate", consumes = MediaType.TEXT_PLAIN_VALUE, produces = MediaType.TEXT_PLAIN_VALUE)
+    @Operation(summary = "Generate an ACH file", description = "Accepts NACHA-formatted ACH text and re-generates a NACHA flat file")
     @ApiResponse(responseCode = "200", description = "Successfully generated ACH file content",
             content = @Content(mediaType = "text/plain"))
     @ApiResponse(responseCode = "400", description = "Invalid ACH document data")
-    public ResponseEntity<String> generate(@RequestBody String achJson) throws Exception {
+    public ResponseEntity<String> generate(@RequestBody String achText) throws Exception {
         ACH ach = createACH();
-        ACHDocument document = ach.read(achJson);
+        ACHDocument document = ach.read(achText);
         String output = ach.write(document);
         return ResponseEntity.ok(output);
     }
