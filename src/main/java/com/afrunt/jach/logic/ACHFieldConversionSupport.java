@@ -25,9 +25,8 @@ import com.afrunt.jach.metadata.ACHFieldMetadata;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * @author Andrii Frunt
@@ -50,13 +49,14 @@ public interface ACHFieldConversionSupport extends FieldConversionSupport<ACHBea
         return stringToBigDecimal(value, bm, fm).shortValue();
     }
 
-    default Date valueStringToDate(String value, ACHBeanMetadata bm, ACHFieldMetadata fm) {
+    default LocalDate valueStringToLocalDate(String value, ACHBeanMetadata bm, ACHFieldMetadata fm) {
         if (ACHField.EMPTY_DATE_PATTERN.equals(fm.getDateFormat())) {
             throwError("Date pattern should be specified for field " + fm);
         }
         try {
-            return new SimpleDateFormat(fm.getDateFormat()).parse(value);
-        } catch (ParseException e) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(fm.getDateFormat());
+            return LocalDate.parse(value, formatter);
+        } catch (Exception e) {
             throw error("Error parsing date " + value + " with pattern " + fm.getDateFormat() + " for field " + fm, e);
         }
     }
@@ -99,8 +99,9 @@ public interface ACHFieldConversionSupport extends FieldConversionSupport<ACHBea
                         .longValue()), fm.getLength());
     }
 
-    default String fieldDateToString(Date value, ACHBeanMetadata bm, ACHFieldMetadata fm) {
-        return new SimpleDateFormat(fm.getDateFormat()).format(value);
+    default String fieldLocalDateToString(LocalDate value, ACHBeanMetadata bm, ACHFieldMetadata fm) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(fm.getDateFormat());
+        return value.format(formatter);
     }
 
     default BigDecimal moveDecimalLeft(BigDecimal number, int digitsAfterComma) {

@@ -24,7 +24,6 @@ import com.afrunt.jach.annotation.Values;
 import com.afrunt.jach.domain.AddendaRecord;
 
 import java.math.BigInteger;
-import java.util.Date;
 
 import static com.afrunt.jach.annotation.InclusionRequirement.*;
 

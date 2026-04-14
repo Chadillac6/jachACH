@@ -24,7 +24,7 @@ import com.afrunt.jach.annotation.Values;
 import com.afrunt.jach.domain.AddendaRecord;
 
 import java.math.BigInteger;
-import java.util.Date;
+import java.time.LocalDate;
 
 import static com.afrunt.jach.annotation.InclusionRequirement.MANDATORY;
 import static com.afrunt.jach.annotation.InclusionRequirement.REQUIRED;
@@ -53,7 +53,7 @@ public class POSAddendaRecord extends AddendaRecord {
     private String referenceInformation2;
     private String terminalIDCode;
     private String transactionSerialNumber;
-    private Date transactionDate;
+    private LocalDate transactionDate;
     private String authorizationCodeOrCardExpiration;
     private String terminalLocation;
     private String terminalCity;
@@ -107,11 +107,11 @@ public class POSAddendaRecord extends AddendaRecord {
     }
 
     @ACHField(start = 25, length = 4, inclusion = REQUIRED, name = TRANSACTION_DATE, dateFormat = "MMdd")
-    public Date getTransactionDate() {
+    public LocalDate getTransactionDate() {
         return transactionDate;
     }
 
-    public POSAddendaRecord setTransactionDate(Date transactionDate) {
+    public POSAddendaRecord setTransactionDate(LocalDate transactionDate) {
         this.transactionDate = transactionDate;
         return this;
     }
