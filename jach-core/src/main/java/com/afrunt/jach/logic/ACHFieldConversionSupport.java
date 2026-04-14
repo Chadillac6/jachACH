@@ -28,8 +28,6 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
 
 /**
  * @author Andrii Frunt
@@ -61,7 +59,7 @@ public interface ACHFieldConversionSupport extends FieldConversionSupport<ACHBea
             if (!pattern.contains("yy")) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
                 MonthDay md = MonthDay.parse(value, formatter);
-                return md.atYear(LocalDate.now().getYear());
+                return md.atYear(2000);
             }
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
             return LocalDate.parse(value, formatter);
