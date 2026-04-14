@@ -27,11 +27,10 @@ import java.util.stream.Collectors;
 @Tag(name = "ACH", description = "ACH file parsing, generation, and validation")
 public class ACHController {
 
-    private final ACH ach;
     private final DtoMapper dtoMapper = new DtoMapper();
 
-    public ACHController(ACH ach) {
-        this.ach = ach;
+    private ACH createACH() {
+        return new ACH();
     }
 
     @PostMapping(value = "/parse", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -40,6 +39,7 @@ public class ACHController {
             content = @Content(schema = @Schema(implementation = ACHDocumentDTO.class)))
     @ApiResponse(responseCode = "400", description = "Invalid ACH file")
     public ResponseEntity<ACHDocumentDTO> parse(@RequestParam("file") MultipartFile file) throws Exception {
+        ACH ach = createACH();
         ACHDocument document = ach.read(file.getInputStream());
         ACHDocumentDTO dto = dtoMapper.toDto(document);
         return ResponseEntity.ok(dto);
@@ -51,6 +51,7 @@ public class ACHController {
             content = @Content(mediaType = "text/plain"))
     @ApiResponse(responseCode = "400", description = "Invalid ACH document data")
     public ResponseEntity<String> generate(@RequestBody String achJson) throws Exception {
+        ACH ach = createACH();
         ACHDocument document = ach.read(achJson);
         String output = ach.write(document);
         return ResponseEntity.ok(output);
@@ -63,8 +64,10 @@ public class ACHController {
     public ResponseEntity<ValidationResultDTO> validate(@RequestParam("file") MultipartFile file) throws Exception {
         ValidationResultDTO result = new ValidationResultDTO();
 
-        String content = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))
-                .lines().collect(Collectors.joining("\n"));
+        String content;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+            content = reader.lines().collect(Collectors.joining("\n"));
+        }
         String[] lines = content.split("\n");
 
         // Check record lengths
@@ -82,6 +85,7 @@ public class ACHController {
 
         // Attempt to parse the file
         try {
+            ACH ach = createACH();
             ACHDocument document = ach.read(content);
 
             // Validate required fields
