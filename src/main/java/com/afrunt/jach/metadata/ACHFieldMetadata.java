@@ -23,8 +23,9 @@ import com.afrunt.jach.annotation.*;
 import com.afrunt.jach.logic.StringUtil;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -176,11 +177,10 @@ public class ACHFieldMetadata extends FieldMetadata implements Comparable<ACHFie
                 return false;
             }
         } else if (isDate()) {
-            SimpleDateFormat sdf = new SimpleDateFormat(getDateFormat());
             try {
-                sdf.parse(value);
+                LocalDate.parse(value, DateTimeFormatter.ofPattern(getDateFormat()));
                 return true;
-            } catch (ParseException e) {
+            } catch (DateTimeParseException e) {
                 return false;
             }
         } else {
