@@ -60,9 +60,12 @@ public interface ACHFieldConversionSupport extends FieldConversionSupport<ACHBea
         try {
             DateTimeFormatter formatter = buildDateFormatter(fm.getDateFormat());
             TemporalAccessor parsed = formatter.parse(value);
+            // Use year 2000 (a leap year) as fallback for patterns without a year component
+            // (e.g. "MMdd"). This avoids crashes on "0229" in non-leap years and keeps the
+            // result deterministic. The year is never serialized for year-less patterns.
             int year = parsed.isSupported(ChronoField.YEAR)
                     ? parsed.get(ChronoField.YEAR)
-                    : LocalDate.now().getYear();
+                    : 2000;
             return LocalDate.of(year, parsed.get(ChronoField.MONTH_OF_YEAR), parsed.get(ChronoField.DAY_OF_MONTH));
         } catch (DateTimeException e) {
             throw error("Error parsing date " + value + " with pattern " + fm.getDateFormat() + " for field " + fm, e);
