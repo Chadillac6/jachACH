@@ -22,7 +22,7 @@ import com.afrunt.jach.annotation.ACHField;
 import com.afrunt.jach.annotation.DateFormat;
 import com.afrunt.jach.annotation.Values;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import static com.afrunt.jach.annotation.InclusionRequirement.*;
 import static com.afrunt.jach.domain.RecordTypes.Constants.BATCH_HEADER_RECORD_TYPE_CODE;
@@ -47,7 +47,7 @@ public abstract class BatchHeader extends ACHRecord {
     private String serviceClassCode;
     private String standardEntryClassCode;
     private String companyEntryDescription;
-    private Date effectiveEntryDate;
+    private LocalDate effectiveEntryDate;
     private Short settlementDate;
     private String originatorStatusCode;
     private String originatorDFIIdentifier;
@@ -91,11 +91,11 @@ public abstract class BatchHeader extends ACHRecord {
 
     @ACHField(start = 69, length = 6, name = EFFECTIVE_ENTRY_DATE, inclusion = REQUIRED)
     @DateFormat("yyMMdd")
-    public Date getEffectiveEntryDate() {
+    public LocalDate getEffectiveEntryDate() {
         return effectiveEntryDate;
     }
 
-    public BatchHeader setEffectiveEntryDate(Date effectiveEntryDate) {
+    public BatchHeader setEffectiveEntryDate(LocalDate effectiveEntryDate) {
         this.effectiveEntryDate = effectiveEntryDate;
         return this;
     }

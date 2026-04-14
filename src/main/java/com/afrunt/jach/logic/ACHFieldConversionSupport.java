@@ -25,9 +25,12 @@ import com.afrunt.jach.metadata.ACHFieldMetadata;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.DateTimeException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 
 /**
  * @author Andrii Frunt
@@ -50,13 +53,21 @@ public interface ACHFieldConversionSupport extends FieldConversionSupport<ACHBea
         return stringToBigDecimal(value, bm, fm).shortValue();
     }
 
-    default Date valueStringToDate(String value, ACHBeanMetadata bm, ACHFieldMetadata fm) {
+    default LocalDate valueStringToLocalDate(String value, ACHBeanMetadata bm, ACHFieldMetadata fm) {
         if (ACHField.EMPTY_DATE_PATTERN.equals(fm.getDateFormat())) {
             throwError("Date pattern should be specified for field " + fm);
         }
         try {
-            return new SimpleDateFormat(fm.getDateFormat()).parse(value);
-        } catch (ParseException e) {
+            DateTimeFormatter formatter = buildDateFormatter(fm.getDateFormat());
+            TemporalAccessor parsed = formatter.parse(value);
+            // Use year 2000 (a leap year) as fallback for patterns without a year component
+            // (e.g. "MMdd"). This avoids crashes on "0229" in non-leap years and keeps the
+            // result deterministic. The year is never serialized for year-less patterns.
+            int year = parsed.isSupported(ChronoField.YEAR)
+                    ? parsed.get(ChronoField.YEAR)
+                    : 2000;
+            return LocalDate.of(year, parsed.get(ChronoField.MONTH_OF_YEAR), parsed.get(ChronoField.DAY_OF_MONTH));
+        } catch (DateTimeException e) {
             throw error("Error parsing date " + value + " with pattern " + fm.getDateFormat() + " for field " + fm, e);
         }
     }
@@ -99,8 +110,33 @@ public interface ACHFieldConversionSupport extends FieldConversionSupport<ACHBea
                         .longValue()), fm.getLength());
     }
 
-    default String fieldDateToString(Date value, ACHBeanMetadata bm, ACHFieldMetadata fm) {
-        return new SimpleDateFormat(fm.getDateFormat()).format(value);
+    default String fieldLocalDateToString(LocalDate value, ACHBeanMetadata bm, ACHFieldMetadata fm) {
+        return value.format(buildDateFormatter(fm.getDateFormat()));
+    }
+
+    /**
+     * Builds a DateTimeFormatter that replicates SimpleDateFormat's 80/20 sliding window
+     * for two-digit year patterns ("yy"). DateTimeFormatter.ofPattern("yy") uses a fixed
+     * base of 2000 (00-99 → 2000-2099), while SimpleDateFormat used 80 years before and
+     * 20 years after the current date. This method preserves the old behavior.
+     */
+    default DateTimeFormatter buildDateFormatter(String pattern) {
+        int idx = pattern.indexOf("yy");
+        if (idx >= 0 && !pattern.contains("yyy")) {
+            String before = pattern.substring(0, idx);
+            String after = pattern.substring(idx + 2);
+            int baseYear = LocalDate.now().minusYears(80).getYear();
+            DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+            if (!before.isEmpty()) {
+                builder.appendPattern(before);
+            }
+            builder.appendValueReduced(ChronoField.YEAR, 2, 2, baseYear);
+            if (!after.isEmpty()) {
+                builder.appendPattern(after);
+            }
+            return builder.toFormatter();
+        }
+        return DateTimeFormatter.ofPattern(pattern);
     }
 
     default BigDecimal moveDecimalLeft(BigDecimal number, int digitsAfterComma) {

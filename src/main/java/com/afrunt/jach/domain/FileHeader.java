@@ -23,7 +23,7 @@ import com.afrunt.jach.annotation.ACHRecordType;
 import com.afrunt.jach.annotation.DateFormat;
 import com.afrunt.jach.annotation.Values;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import static com.afrunt.jach.annotation.InclusionRequirement.*;
 import static com.afrunt.jach.domain.RecordTypes.Constants.FILE_HEADER_RECORD_TYPE_CODE;
@@ -53,7 +53,7 @@ public class FileHeader extends ACHRecord {
     private String priorityCode;
     private String immediateDestination;
     private String immediateOrigin;
-    private Date fileCreationDate;
+    private LocalDate fileCreationDate;
     private String fileCreationTime;
     private String fileIdModifier;
     private String blockingFactor;
@@ -114,11 +114,11 @@ public class FileHeader extends ACHRecord {
      */
     @ACHField(start = 23, length = 6, name = FILE_CREATION_DATE, inclusion = MANDATORY)
     @DateFormat("yyMMdd")
-    public Date getFileCreationDate() {
+    public LocalDate getFileCreationDate() {
         return fileCreationDate;
     }
 
-    public FileHeader setFileCreationDate(Date fileCreationDate) {
+    public FileHeader setFileCreationDate(LocalDate fileCreationDate) {
         this.fileCreationDate = fileCreationDate;
         return this;
     }
