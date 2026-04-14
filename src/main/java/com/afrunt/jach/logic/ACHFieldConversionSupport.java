@@ -28,7 +28,7 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.time.format.DateTimeParseException;
+import java.time.DateTimeException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 
@@ -64,7 +64,7 @@ public interface ACHFieldConversionSupport extends FieldConversionSupport<ACHBea
                     ? parsed.get(ChronoField.YEAR)
                     : LocalDate.now().getYear();
             return LocalDate.of(year, parsed.get(ChronoField.MONTH_OF_YEAR), parsed.get(ChronoField.DAY_OF_MONTH));
-        } catch (DateTimeParseException e) {
+        } catch (DateTimeException e) {
             throw error("Error parsing date " + value + " with pattern " + fm.getDateFormat() + " for field " + fm, e);
         }
     }

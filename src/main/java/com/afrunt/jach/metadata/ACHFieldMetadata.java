@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -46,6 +47,11 @@ public class ACHFieldMetadata extends FieldMetadata implements Comparable<ACHFie
     private Integer length;
     private Boolean typeTag;
     private Boolean hasConstantValues;
+
+    @Override
+    public boolean isDate() {
+        return super.isDate() || LocalDate.class.equals(getType());
+    }
 
     public boolean isACHField() {
         return achAnnotation() != null;
@@ -179,7 +185,7 @@ public class ACHFieldMetadata extends FieldMetadata implements Comparable<ACHFie
         } else if (isDate()) {
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern(getDateFormat());
-                formatter.parse(value);
+                TemporalAccessor parsed = formatter.parse(value);
                 return true;
             } catch (DateTimeParseException e) {
                 return false;
