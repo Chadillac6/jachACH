@@ -178,7 +178,8 @@ public class ACHFieldMetadata extends FieldMetadata implements Comparable<ACHFie
             }
         } else if (isDate()) {
             try {
-                LocalDate.parse(value, DateTimeFormatter.ofPattern(getDateFormat()));
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(getDateFormat());
+                formatter.parse(value);
                 return true;
             } catch (DateTimeParseException e) {
                 return false;
