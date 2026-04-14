@@ -1,3 +1,8 @@
 # Created by .ignore support plugin (hsz.mobi)
 /jach2.iml
-/target/
+target/
+*.iml
+.idea/
+.classpath
+.project
+.settings/
