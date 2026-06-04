@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  jach-build:
+    build:
+      context: .
+      target: build
+    volumes:
+      - ./target:/app/target
+    command: mvn clean package -DskipTests

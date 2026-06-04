@@ -49,3 +49,15 @@ Enable aligning of blocks
 ```java
 ACH ach = new ACH().withBlockAligning(true);
 ```
+
+### Docker
+Build and run using Docker (useful as a reproducible build/test environment for this library):
+```bash
+docker build -t jach .
+docker run jach
+```
+Or use Docker Compose:
+```bash
+docker compose up --build
+```
+The container is for CI/build purposes — jACH is a library JAR with no main class.
