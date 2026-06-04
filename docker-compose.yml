@@ -6,3 +6,4 @@ services:
       target: build
     volumes:
       - ./target:/app/target
+    command: mvn clean package -DskipTests
