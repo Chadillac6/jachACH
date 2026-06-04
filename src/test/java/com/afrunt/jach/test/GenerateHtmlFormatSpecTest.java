@@ -4,14 +4,15 @@ import com.afrunt.beanmetadata.Typed;
 import com.afrunt.jach.ACH;
 import com.afrunt.jach.metadata.ACHBeanMetadata;
 import com.afrunt.jach.metadata.ACHMetadata;
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
 /**
@@ -19,18 +20,23 @@ import java.util.stream.Collectors;
  */
 public class GenerateHtmlFormatSpecTest {
 
+    @TempDir
+    Path tempDir;
+
     @Test
-    public void testGenerateSpec() {
+    @DisplayName("Generate individual and full NACHA spec HTML files")
+    void testGenerateSpec() {
         NACHASpecRenderer renderer = new NACHASpecRenderer();
 
         renderer.renderSingleSpecs()
-                .forEach(this::storeToFile);
+                .forEach((fileName, contents) -> storeToFile(fileName, contents));
 
         storeToFile("nacha-spec.htm", renderer.renderFullSpec());
     }
 
     @Test
-    public void testIdenticalPatterns() {
+    @DisplayName("Identify record types sharing identical field patterns")
+    void testIdenticalPatterns() {
         ACHMetadata metadata = new ACH().getMetadata();
         metadata
                 .getACHBeansMetadata()
@@ -44,9 +50,7 @@ public class GenerateHtmlFormatSpecTest {
 
     private void storeToFile(String fileName, String contents) {
         try {
-            Path achDirPath = Paths.get(System.getProperty("user.dir")).resolve("target/ach");
-            Files.createDirectories(achDirPath);
-            Path filePath = achDirPath.resolve(fileName);
+            Path filePath = tempDir.resolve(fileName);
             PrintWriter writer = new PrintWriter(new FileOutputStream(filePath.toFile()));
             writer.write(contents);
             writer.flush();

@@ -21,58 +21,64 @@ package com.afrunt.jach.test;
 import com.afrunt.jach.ACH;
 import com.afrunt.jach.document.ACHDocument;
 import com.afrunt.jach.domain.GeneralBatchHeader;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Scanner;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * @author Andrii Frunt
  */
 public class ACHTest {
-    private static final String[] ACH_FILES = {"ach-ppd-contested-dishonored-return.txt", "ach-ppd-dishonored-return.txt", 
-            "ach-ppd-return.txt","ach-cor2.txt", "ach-return-cor.txt","cie-returns.txt", "ach-return.txt", "ach-tr.txt", 
-            "ach-payrol.txt", "ach-web-ppd.txt", "ach-pos.txt"
-    };
 
-    @Test
-    public void testReadWrite() {
-        long start = System.currentTimeMillis();
+    @ParameterizedTest(name = "read/write round-trip: {0}")
+    @DisplayName("ACH files survive a read-write round-trip unchanged")
+    @ValueSource(strings = {
+            "ach-ppd-contested-dishonored-return.txt",
+            "ach-ppd-dishonored-return.txt",
+            "ach-ppd-return.txt",
+            "ach-cor2.txt",
+            "ach-return-cor.txt",
+            "cie-returns.txt",
+            "ach-return.txt",
+            "ach-tr.txt",
+            "ach-payrol.txt",
+            "ach-web-ppd.txt",
+            "ach-pos.txt"
+    })
+    void testReadWrite(String achFileName) {
         ACH ach = new ACH();
-        System.out.println(String.format("\nACH instantiated in %sms", (System.currentTimeMillis() - start)));
-        for (String achFileName : ACH_FILES) {
-            start = System.currentTimeMillis();
-            ACHDocument document = ach.read(getClass().getClassLoader().getResourceAsStream(achFileName));
-            System.out.println(String.format(achFileName + " read in %sms", (System.currentTimeMillis() - start)));
-
-            start = System.currentTimeMillis();
-            String out = ach.write(document);
-            System.out.println(String.format(achFileName + " written in %sms", (System.currentTimeMillis() - start)));
-
-            testFilesAreEquals(getClass().getClassLoader().getResourceAsStream(achFileName), new ByteArrayInputStream(out.getBytes()));
-        }
+        ACHDocument document = ach.read(getClass().getClassLoader().getResourceAsStream(achFileName));
+        String out = ach.write(document);
+        testFilesAreEquals(getClass().getClassLoader().getResourceAsStream(achFileName), new ByteArrayInputStream(out.getBytes()));
     }
 
     @Test
-    public void testBlockAligning() {
+    @DisplayName("Block aligning pads output to multiples of 10 lines")
+    void testBlockAligning() {
         ACH ach = new ACH()
                 .withBlockAligning(true);
 
         ACHDocument document = ach.read(getClass().getClassLoader().getResourceAsStream("ach-payrol.txt"));
         String out = ach.write(document);
         String[] strings = out.split(ACH.LINE_SEPARATOR);
-        Assert.assertEquals(10, strings.length);
+        assertEquals(10, strings.length);
 
         document = ach.read(getClass().getClassLoader().getResourceAsStream("ach-pos.txt"));
         out = ach.write(document);
         strings = out.split(ACH.LINE_SEPARATOR);
-        Assert.assertEquals(10, strings.length);
+        assertEquals(10, strings.length);
     }
 
     @Test
-    public void castTest(){
+    @DisplayName("GeneralBatchHeader fluent cast API works correctly")
+    void castTest() {
         GeneralBatchHeader batchHeader = new GeneralBatchHeader()
                 .setCompanyID("")
                 .setServiceClassCode("XXX")
@@ -80,6 +86,32 @@ public class ACHTest {
                 .setCompanyName("")
                 .setBatchNumber(1)
                 .cast();
+    }
+
+    @Test
+    @DisplayName("Reading an empty stream returns a document with no batches")
+    void testReadEmptyStream() {
+        ACH ach = new ACH();
+        InputStream emptyStream = new ByteArrayInputStream(new byte[0]);
+        ACHDocument document = ach.read(emptyStream);
+        assertNotNull(document);
+        assertTrue(document.getBatches().isEmpty());
+    }
+
+    @Test
+    @DisplayName("Reading a null stream throws NullPointerException")
+    void testReadNullStream() {
+        ACH ach = new ACH();
+        assertThrows(NullPointerException.class, () -> ach.read((InputStream) null));
+    }
+
+    @Test
+    @DisplayName("Reading a malformed ACH file throws an appropriate exception")
+    void testReadMalformedFile() {
+        ACH ach = new ACH();
+        String malformedContent = "This is not a valid ACH file\nNeither is this line\n";
+        InputStream malformedStream = new ByteArrayInputStream(malformedContent.getBytes());
+        assertThrows(Exception.class, () -> ach.read(malformedStream));
     }
 
     private void testFilesAreEquals(InputStream is1, InputStream is2) {
@@ -92,9 +124,7 @@ public class ACHTest {
                 continue;
             }
             String line2 = sc2.nextLine();
-            Assert.assertEquals(line1, line2);
+            assertEquals(line1, line2);
         }
     }
-
-
 }
