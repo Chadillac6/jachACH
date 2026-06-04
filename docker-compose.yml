@@ -1,6 +1,8 @@
 version: '3.8'
 services:
   jach-build:
-    build: .
+    build:
+      context: .
+      target: build
     volumes:
       - ./target:/app/target
