@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/afrunt/jach.svg?branch=master)](https://travis-ci.org/afrunt/jach)
+[![CI](https://github.com/Chadillac6/jachACH/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/Chadillac6/jachACH/actions/workflows/ci.yml)
 ## Java library for reading and writing ACH documents 
 Add jACH to your project. for maven projects just add this dependency:
 ```xml
